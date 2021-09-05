@@ -6,6 +6,7 @@
       <button v-on:click.prevent="login">Login</button>
     </template>
     <button v-if="loggedIn" v-on:click.prevent="logout">Logout</button>
+    <div>{{ errorMessage }}</div>
   </div>
 </template>
 
@@ -17,7 +18,7 @@ export default {
   name: "Home",
   components: {},
   created() {
-    this.$store.dispatch("loadLogin");
+    this.$store.dispatch("loadLoginStatus");
   },
   data() {
     return {
@@ -27,7 +28,10 @@ export default {
   },
   computed: {
     loggedIn() {
-      return !!localStorage.getItem("access_token");
+      return !!localStorage.getItem("recipe_app_access_token");
+    },
+    errorMessage() {
+      return this.$store.state.errorMessage;
     },
   },
   methods: {
