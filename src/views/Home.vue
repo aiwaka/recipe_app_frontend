@@ -6,7 +6,7 @@
       <button v-on:click.prevent="login">Login</button>
     </template>
     <button v-if="loggedIn" v-on:click.prevent="logout">Logout</button>
-    <div>{{ errorMessage }}</div>
+    <div v-if="errorMessage" class="error-message">{{ errorMessage }}</div>
   </div>
 </template>
 
@@ -48,3 +48,10 @@ export default {
   },
 };
 </script>
+
+<style>
+.error-message {
+  border: 1px solid red;
+  color: red;
+}
+</style>
