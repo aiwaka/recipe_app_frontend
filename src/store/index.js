@@ -12,8 +12,15 @@ export default new Vuex.Store({
     errorMessage: "",
   },
   mutations: {
-    pushToLoginPage() {
-      router.go("/");
+    pushToLoginPage(state, { message }) {
+      alert(
+        "ログインに失敗しました。\nエラーメッセージ：" +
+          message +
+          "\nログイン画面に戻ります。"
+      );
+      localStorage.removeItem("recipe_app_access_token");
+      router.go({ path: "/" });
+      state.errorMessage = message;
     },
   },
   actions: {
@@ -54,7 +61,9 @@ export default new Vuex.Store({
     async logout({ state, commit }) {
       const headers = {
         "Content-Type": "application/json",
-        Authorization: localStorage.getItem("recipe_app_access_token"),
+        Authorization: `bearer ${localStorage.getItem(
+          "recipe_app_access_token"
+        )}`,
       };
       const result = await axios
         .post(state.server_url + "/logout", {}, { headers })
@@ -69,8 +78,7 @@ export default new Vuex.Store({
         }
       } else {
         if ("message" in result.data) {
-          commit("pushToLoginPage");
-          state.errorMessage = result.data.message;
+          commit("pushToLoginPage", { message: result.data.message });
           console.log(result.data.message);
         } else {
           console.log(result);
