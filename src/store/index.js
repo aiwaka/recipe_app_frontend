@@ -5,11 +5,25 @@ import axios from "axios";
 
 Vue.use(Vuex);
 
+function authorizedHeader(props_obj = {}) {
+  // アクセストークンを含めたヘッダーオブジェクトを返す. ないならないでOK.
+  return Object.assign(
+    {
+      "Content-Type": "application/json",
+      Authorization: `bearer ${localStorage.getItem(
+        "recipe_app_access_token"
+      )}`,
+    },
+    props_obj
+  );
+}
+
 export default new Vuex.Store({
   state: {
     // なぜかここでserver_urlを設定しないとCORSエラーが出る.
     server_url: process.env.VUE_APP_EXTERNAL_SERVER_URL,
     errorMessage: "",
+    recipeDataList: [],
   },
   mutations: {
     pushToLoginPage(state, { message }) {
@@ -19,7 +33,7 @@ export default new Vuex.Store({
           "\nログイン画面に戻ります。"
       );
       localStorage.removeItem("recipe_app_access_token");
-      router.go({ path: "/" });
+      router.push({ path: "/" });
       state.errorMessage = message;
     },
   },
@@ -59,36 +73,65 @@ export default new Vuex.Store({
       }
     },
     async logout({ state, commit }) {
-      const headers = {
-        "Content-Type": "application/json",
-        Authorization: `bearer ${localStorage.getItem(
-          "recipe_app_access_token"
-        )}`,
-      };
+      const headers = authorizedHeader();
       const result = await axios
         .post(state.server_url + "/logout", {}, { headers })
         .then((response) => response)
         .catch((err) => err.response);
       if (result.status === 200) {
-        if ("message" in result.data) {
-          localStorage.removeItem("recipe_app_access_token");
-          console.log(result.data.message);
-        } else {
-          console.log(result);
-        }
+        localStorage.removeItem("recipe_app_access_token");
+        console.log(result.data.message);
       } else {
         if ("message" in result.data) {
           commit("pushToLoginPage", { message: result.data.message });
-          console.log(result.data.message);
         } else {
           console.log(result);
         }
       }
-
-      // router.go({ path: "/", force: true });
+      router.go({ path: "/", force: true });
     },
-    async getRecipeList() {
-      // const result = await axios.get()
+    async getRecipeList({ state, commit }) {
+      const headers = authorizedHeader();
+      const result = await axios
+        .get(state.server_url + "/recipes", {
+          headers,
+          data: {},
+        })
+        .then((response) => response)
+        .catch((err) => err.response);
+      if (result.status === 200) {
+        state.recipeDataList = result.data.dataList;
+      } else {
+        if ("message" in result.data) {
+          commit("pushToLoginPage", { message: result.data.message });
+        } else {
+          console.log(result);
+        }
+      }
+    },
+    async addNewRecipe({ state, commit, dispatch }, { name, url }) {
+      console.log("add recipe");
+      const headers = authorizedHeader();
+      const result = await axios
+        .post(
+          state.server_url + "/recipes",
+          {
+            recipe_name: name,
+            original_url: url,
+          },
+          { headers }
+        )
+        .then((response) => response)
+        .catch((err) => err.response);
+      if (result.status === 200) {
+        dispatch("getRecipeList");
+      } else {
+        if ("message" in result.data) {
+          commit("pushToLoginPage", { message: result.data.message });
+        } else {
+          console.log(result);
+        }
+      }
     },
   },
   modules: {},
