@@ -11,7 +11,12 @@
       <button v-on:click.prevent="searchRecipe">検索</button>
     </div>
     <div v-if="recipes.length">
-      <div v-for="rec in recipes" :key="rec.id">
+      <div
+        v-for="rec in recipes"
+        :key="rec.id"
+        class="recipe__each-box"
+        v-on:click="pushToContentsPage(rec.id)"
+      >
         {{ rec.name }}
       </div>
     </div>
@@ -52,6 +57,9 @@ export default {
     },
     searchRecipe() {
       //todo
+    },
+    pushToContentsPage(recipeId) {
+      this.$router.push({ name: "Contents", params: { recipeId: recipeId } });
     },
   },
 };
