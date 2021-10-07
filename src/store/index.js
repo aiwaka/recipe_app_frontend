@@ -23,7 +23,10 @@ export default new Vuex.Store({
     // なぜかここでserver_urlを設定しないとCORSエラーが出る.
     server_url: process.env.VUE_APP_EXTERNAL_SERVER_URL,
     errorMessage: "",
+    // レシピ一覧を保持する
     recipeDataList: [],
+    // レシピの内容をオブジェクトで保存する（itemの配列）
+    recipeContents: [],
   },
   mutations: {
     pushToLoginPage(state, { message }) {
@@ -44,6 +47,23 @@ export default new Vuex.Store({
         console.log("login loaded");
       }
     },
+    async checkLogin({ state, commit }) {
+      console.log("checking login status");
+      const headers = authorizedHeader();
+      const result = await axios
+        .post(state.server_url + "/check_login", {}, { headers })
+        .then((response) => response)
+        .catch((err) => err.response);
+      if (result.status === 200) {
+        console.log("login checked");
+      } else {
+        if ("message" in result.data) {
+          commit("pushToLoginPage", { message: result.data.message });
+        } else {
+          console.log(result);
+        }
+      }
+    },
     async login({ state }, { name, password }) {
       console.log("login start");
       const result = await axios
@@ -53,11 +73,7 @@ export default new Vuex.Store({
             name,
             password,
           },
-          {
-            headers: {
-              "Content-Type": "application/json",
-            },
-          }
+          { headers: { "Content-Type": "application/json" } }
         )
         .then((response) => response)
         .catch((err) => err.response);
@@ -134,6 +150,57 @@ export default new Vuex.Store({
       if (result.status === 200) {
         // 成功したならデータベース情報を取得して更新する.
         dispatch("getRecipeList");
+      } else {
+        if ("message" in result.data) {
+          commit("pushToLoginPage", { message: result.data.message });
+        } else {
+          console.log(result);
+        }
+      }
+    },
+    async getRecipeContents({ state, commit }, { recipeId }) {
+      // state.recipeContents = [];
+      console.log("get recipe contents at " + String(recipeId));
+      const headers = authorizedHeader();
+      const result = await axios
+        .get(state.server_url + "/recipes/" + String(recipeId), { headers })
+        .then((response) => response)
+        .catch((err) => err.response);
+      if (result.status === 200) {
+        // 成功したらstateに保存
+        Object.assign(state.recipeContents, result.data.data);
+      } else {
+        if ("message" in result.data) {
+          commit("pushToLoginPage", { message: result.data.message });
+        } else {
+          console.log(result);
+        }
+      }
+    },
+
+    async addNewItem(
+      { state, commit, dispatch },
+      { title, recipeId, originalText }
+    ) {
+      console.log("add item");
+      const headers = authorizedHeader();
+      const result = await axios
+        .post(
+          state.server_url + "/items",
+          {
+            item_order: 1, // todo: 現状定数にしているがちゃんと変化するようにする.
+            title,
+            recipe_id: recipeId,
+            original_text: originalText,
+          },
+          { headers }
+        )
+        .then((response) => response)
+        .catch((err) => err.response);
+      if (result.status === 200) {
+        // 成功したならデータベース情報を取得して更新する.
+        console.log("success to add item to " + String(recipeId));
+        dispatch("getRecipeContents", { recipeId });
       } else {
         if ("message" in result.data) {
           commit("pushToLoginPage", { message: result.data.message });
