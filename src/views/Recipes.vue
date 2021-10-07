@@ -64,3 +64,17 @@ export default {
   },
 };
 </script>
+
+<style>
+.recipe__each-box {
+  background-color: rgba(255, 255, 255, 0);
+  border: 1px solid #aaa;
+  width: fit-content;
+  padding: 0.2rem 0.8rem;
+  margin: auto auto;
+}
+.recipe__each-box:hover {
+  background-color: #ccc;
+  cursor: pointer;
+}
+</style>

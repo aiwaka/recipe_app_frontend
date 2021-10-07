@@ -47,10 +47,18 @@ export default new Vuex.Store({
     async login({ state }, { name, password }) {
       console.log("login start");
       const result = await axios
-        .post(state.server_url + "/login", {
-          name,
-          password,
-        })
+        .post(
+          state.server_url + "/login",
+          {
+            name,
+            password,
+          },
+          {
+            headers: {
+              "Content-Type": "application/json",
+            },
+          }
+        )
         .then((response) => response)
         .catch((err) => err.response);
       if (result.status === 200) {
@@ -124,6 +132,7 @@ export default new Vuex.Store({
         .then((response) => response)
         .catch((err) => err.response);
       if (result.status === 200) {
+        // 成功したならデータベース情報を取得して更新する.
         dispatch("getRecipeList");
       } else {
         if ("message" in result.data) {
