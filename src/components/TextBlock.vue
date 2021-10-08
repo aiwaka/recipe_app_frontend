@@ -1,30 +1,31 @@
 <template>
   <!--textを受け取り表示する. changeボタンを押すと編集でき, saveを押すとtext-changedをemitし変更後のデータを返す. オプションでinputTypeを指定するとテキストのバリデーションを設定できる.-->
   <div class="block-with-changer">
-    <h3 class="title" v-if="title">{{ title }}</h3>
-    <div class="text-space" v-if="show && !foldFlag" v-on:click="textClick">
-      {{ text }}
-    </div>
-    <div class="text-space" v-if="show && foldFlag" v-on:click="textClick">
-      {{ viewText }}
-    </div>
-    <div class="whole-text-container">
-      <div class="whole-text" v-if="showWholeText">
-        <p>{{ text }}</p>
+    <template v-if="show">
+      <h3 class="title">{{ title }}</h3>
+      <div class="text-space" v-if="!foldFlag" v-on:click="textClick">
+        <p v-if="!foldFlag">{{ text }}</p>
+        <p v-else>{{ viewText }}</p>
       </div>
-    </div>
-    <div v-if="show" class="button-container">
-      <button v-on:click.prevent="change">変更</button>
-      <button v-on:click.prevent="copyToClipBoard(text)">コピー</button>
-      <button v-on:click.prevent="deleteItem">削除</button>
-    </div>
-    <input
-      class="text-input"
-      :type="inputType"
-      v-if="!show"
-      v-model="newText"
-    />
-    <button v-if="!show" v-on:click.prevent="save">保存</button>
+      <div class="whole-text-container">
+        <div class="whole-text" v-if="showWholeText">
+          <p>{{ text }}</p>
+        </div>
+      </div>
+      <div class="button-container">
+        <button v-on:click.prevent="change">変更</button>
+        <button v-on:click.prevent="copyToClipBoard(text)">コピー</button>
+        <button v-on:click.prevent="deleteItem">削除</button>
+      </div>
+    </template>
+    <template v-else>
+      <h3><input class="title-input" type="text" v-model="newTitle" /></h3>
+      <input class="text-input" :type="inputType" v-model="newText" />
+      <div class="button-container">
+        <button v-on:click.prevent="save">保存</button>
+        <button v-on:click.prevent="cancel">キャンセル</button>
+      </div>
+    </template>
   </div>
 </template>
 
@@ -35,6 +36,8 @@ export default {
     return {
       show: true, // trueのときは変更不可. falseのときはテキストボックス
       showWholeText: false,
+      oldTitle: "",
+      newTitle: "",
       oldText: "",
       newText: "",
     };
@@ -62,11 +65,12 @@ export default {
   },
   computed: {
     foldFlag() {
-      return this.text.length > 17;
+      // 決めておいた文字数を超えたら省略する.
+      return this.text.length > 200;
     },
     viewText() {
       if (this.foldFlag) {
-        return this.text.slice(0, 17) + "...";
+        return this.text.slice(0, 200) + "...";
       } else {
         return "folded";
       }
@@ -74,6 +78,8 @@ export default {
   },
   methods: {
     change() {
+      this.oldTitle = this.title;
+      this.newTitle = this.title;
       this.oldText = this.text;
       this.newText = this.text;
       this.show = false;
@@ -83,15 +89,26 @@ export default {
     },
     save() {
       if (this.newText.length > 300) {
-        alert("文字数が多すぎます。300文字以内に収める必要があります。");
+        alert("本文の文字数が多すぎます。300文字以内に収める必要があります。");
+        return;
+      }
+      if (this.newTitle.length > 50) {
+        alert(
+          "タイトルの文字数が多すぎます。50文字以内に収める必要があります。"
+        );
+        return;
+      }
+      const modMap = [];
+      if (this.oldTitle !== this.newTitle) {
+        modMap.push({ entry: "title", new_data: this.newTitle });
+      }
+      if (this.oldText !== this.newText) {
+        modMap.push({ entry: "modified_text", new_data: this.newText });
+      }
+      if (!modMap.length) {
         this.show = true;
         return;
       }
-      if (this.oldText === this.newText) {
-        this.show = true;
-        return;
-      }
-      const modMap = [{ entry: "modified_text", new_data: this.newText }];
       this.updateFunc(modMap);
       this.show = true;
     },
@@ -101,7 +118,9 @@ export default {
       }
     },
     textClick() {
-      this.showWholeText = !this.showWholeText;
+      if (this.foldFlag) {
+        this.showWholeText = !this.showWholeText;
+      }
     },
     copyToClipBoard(text) {
       navigator.clipboard.writeText(text).catch((e) => {
