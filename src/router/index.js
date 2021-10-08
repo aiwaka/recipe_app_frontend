@@ -28,7 +28,7 @@ const routes = [
     meta: { requiredAuth: true },
   },
   {
-    path: "/contents/:recipeId",
+    path: "/recipes/:recipeId",
     name: "Contents",
     component: () => import("../views/Contents.vue"),
     meta: { requiredAuth: true },
@@ -52,6 +52,7 @@ router.beforeEach((to, from, next) => {
         console.log("auth failed");
         console.log(error);
         alert("ログインに失敗しました。ホーム画面に戻ります。");
+        localStorage.removeItem("recipe_app_access_token");
         next({
           path: "/",
           query: { redirect: to.fullPath },
