@@ -3,7 +3,7 @@
     <h2>{{ recipeName }}</h2>
     <div class="contents__add-box">
       <input placeholder="contents title" v-model="newItemTitle" />
-      <input placeholder="text" type="textarea" v-model="newItemText" />
+      <textarea placeholder="text" v-model="newItemText" />
       <button v-on:click.prevent="addNewItem">作成</button>
     </div>
     <template v-if="itemList.length">

@@ -1,5 +1,5 @@
 <template>
-  <!--textを受け取り表示する. changeボタンを押すと編集でき, saveを押すとtext-changedをemitし変更後のデータを返す. オプションでinputTypeを指定するとテキストのバリデーションを設定できる.-->
+  <!--textを受け取り表示する. changeボタンを押すと編集でき, saveを押すと受け取った関数を実行する. オプションでinputTypeを指定するとテキストのバリデーションを設定できる.-->
   <div class="block-with-changer">
     <template v-if="show">
       <h3 class="title">{{ title }}</h3>
@@ -16,11 +16,12 @@
         <button v-on:click.prevent="change">変更</button>
         <button v-on:click.prevent="copyToClipBoard(text)">コピー</button>
         <button v-on:click.prevent="deleteItem">削除</button>
+        <button v-on:click="setDefaultText">初期テキストにする</button>
       </div>
     </template>
     <template v-else>
       <h3><input class="title-input" type="text" v-model="newTitle" /></h3>
-      <input class="text-input" :type="inputType" v-model="newText" />
+      <textarea class="text-input" v-model="newText" />
       <div class="button-container">
         <button v-on:click.prevent="save">保存</button>
         <button v-on:click.prevent="cancel">キャンセル</button>
@@ -115,6 +116,21 @@ export default {
     deleteItem() {
       if (confirm(`'${this.title}'を消去しますか？`)) {
         this.deleteFunc();
+      }
+    },
+    setDefaultText() {
+      const text = this.text;
+      if (
+        confirm(
+          "現在のテキストをデフォルトとして設定しますか？（もとに戻せません）"
+        )
+      ) {
+        const modMap = [
+          { entry: "original_text", new_data: text },
+          { entry: "modified_text", new_data: text },
+        ];
+        this.updateFunc(modMap);
+        this.show = true;
       }
     },
     textClick() {
