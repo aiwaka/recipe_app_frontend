@@ -10,7 +10,7 @@
       <input placeholder="search query" v-model="searchQuery" />
       <button v-on:click.prevent="searchRecipe">検索</button>
     </div>
-    <div v-if="recipeDataList.length">
+    <div v-if="recipeDataList.length" class="recipe__box-container">
       <div
         v-for="rec in recipeDataList"
         :key="rec.id"
@@ -20,7 +20,7 @@
         <p>{{ rec.name }}</p>
       </div>
     </div>
-    <div v-else>No data.</div>
+    <div v-else class="recipe__box-container">No data.</div>
   </div>
 </template>
 
@@ -106,11 +106,14 @@ export default {
 </script>
 
 <style>
+.recipe__box-container {
+  width: 20rem;
+  margin: auto auto;
+}
 .recipe__each-box {
   background-color: rgba(255, 255, 255, 0);
   border: 1px solid #aaa;
   font-size: 2.6rem;
-  width: 20rem;
   /* height: 4rem; */
   padding: 0.2rem 0.8rem;
   margin: auto auto;
