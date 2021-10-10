@@ -401,6 +401,7 @@ export default {
 }
 .ingr-list {
   display: flex;
+  flex-wrap: wrap;
 }
 .edit-all-ingr-container {
   border: 1px dotted #aaa;
@@ -418,6 +419,8 @@ export default {
 }
 .recipe__ingr {
   display: flex;
+  border: 1px solid #ccc;
+  margin: 0.2rem 0.4rem;
 }
 .recipe__ingr-delete-button {
   border: 1px solid #aaa;
