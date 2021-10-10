@@ -33,6 +33,12 @@ const routes = [
     component: () => import("../views/Contents.vue"),
     meta: { requiredAuth: true },
   },
+  {
+    path: "/ingredients",
+    name: "Ingredients",
+    component: () => import("../views/Ingredients.vue"),
+    meta: { requiredAuth: true },
+  },
 ];
 
 const router = new VueRouter({
