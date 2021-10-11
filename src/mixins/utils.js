@@ -40,19 +40,40 @@ export const pushToLoginPage = function (message) {
   router.push({ path: "/" });
 };
 
-export default {
-  methods: {
-    authorizedHeader(props_obj = {}) {
-      // アクセストークンを含めたヘッダーオブジェクトを返す. ないならないでOK.
-      return Object.assign(
-        {
-          "Content-Type": "application/json",
-          Authorization: `bearer ${localStorage.getItem(
-            "recipe_app_access_token"
-          )}`,
-        },
-        props_obj
-      );
-    },
-  },
+export const standardAccessToAPI = async function (
+  axiosPromise,
+  successMethod
+) {
+  // axios.post(...)などのPromiseオブジェクトを受け取り,
+  // 成功した場合はsuccessMethodを引数resultで実行,
+  // 失敗している場合はコンソールに表示する.
+  const result = await axiosPromise
+    .then((response) => response)
+    .catch((err) => err.response);
+  if (result.status == 200) {
+    successMethod(result);
+  } else {
+    if ("message" in result.data) {
+      pushToLoginPage(result.data.message);
+    } else {
+      console.log(result);
+    }
+  }
 };
+
+// export default {
+//   methods: {
+//     authorizedHeader(props_obj = {}) {
+//       // アクセストークンを含めたヘッダーオブジェクトを返す. ないならないでOK.
+//       return Object.assign(
+//         {
+//           "Content-Type": "application/json",
+//           Authorization: `bearer ${localStorage.getItem(
+//             "recipe_app_access_token"
+//           )}`,
+//         },
+//         props_obj
+//       );
+//     },
+//   },
+// };
