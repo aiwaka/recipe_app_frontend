@@ -408,10 +408,12 @@ export default {
 }
 .edit-all-ingr-list {
   display: flex;
+  flex-wrap: wrap;
 }
 .edit-ingr-elem {
   display: flex;
   border: 1px solid #888;
+  margin: 0.1rem 0.3rem;
 }
 .edit-add-button {
   border: 1px solid #aaa;

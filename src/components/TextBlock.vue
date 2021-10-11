@@ -2,7 +2,7 @@
   <!--textを受け取り表示する. changeボタンを押すと編集でき, saveを押すと受け取った関数を実行する. オプションでinputTypeを指定するとテキストのバリデーションを設定できる.-->
   <div class="block-with-changer">
     <template v-if="show">
-      <h3 class="title">{{ title }}</h3>
+      <h3 class="title-header">{{ title }}</h3>
       <div class="text-space" v-if="!foldFlag" v-on:click="textClick">
         <p v-if="!foldFlag">{{ text }}</p>
         <p v-else>{{ viewText }}</p>
@@ -20,7 +20,9 @@
       </div>
     </template>
     <template v-else>
-      <h3><input class="title-input" type="text" v-model="newTitle" /></h3>
+      <h3 class="title-header">
+        <input class="title-input" type="text" v-model="newTitle" />
+      </h3>
       <textarea class="text-input" v-model="newText" />
       <div class="button-container">
         <button v-on:click.prevent="save">保存</button>
@@ -156,7 +158,8 @@ export default {
   flex-direction: column;
   justify-content: space-between;
   align-items: center;
-  height: 11rem;
+  /* height: 11rem; */
+  height: fit-content;
 }
 .button-container {
   display: flex;
@@ -164,12 +167,19 @@ export default {
   justify-content: space-around;
 }
 .text-space {
-  width: 10rem;
+  width: 80%;
   word-wrap: break-word;
   margin: auto;
 }
+.title-header {
+  width: 90%;
+}
+.title-input {
+  width: 90%;
+}
 .text-input {
-  width: 10rem;
+  width: 80%;
+  height: 8rem;
   margin: auto;
 }
 button {
