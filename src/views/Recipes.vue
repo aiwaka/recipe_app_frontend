@@ -28,7 +28,12 @@
 
 <script>
 import axios from "axios";
-import { server_url, authorizedHeader, pushToLoginPage } from "../mixins/utils";
+import {
+  server_url,
+  authorizedHeader,
+  // pushToLoginPage,
+  standardAccessToAPI,
+} from "../mixins/utils";
 export default {
   name: "Recipes",
   components: {},
@@ -47,22 +52,12 @@ export default {
   methods: {
     async getRecipeList() {
       const headers = authorizedHeader();
-      const result = await axios
-        .get(server_url + "/recipes", {
-          headers,
-          data: {},
-        })
-        .then((response) => response)
-        .catch((err) => err.response);
-      if (result.status === 200) {
-        this.recipeDataList = result.data.dataList;
-      } else {
-        if ("message" in result.data) {
-          pushToLoginPage(result.data.message);
-        } else {
-          console.log(result);
+      await standardAccessToAPI(
+        axios.get(server_url + "/recipes", { headers }),
+        (result) => {
+          this.recipeDataList = result.data.dataList;
         }
-      }
+      );
     },
     async addNewRecipe() {
       const name = this.newRecipeName;
@@ -73,27 +68,19 @@ export default {
       const url = this.originalUrl;
       console.log("add recipe");
       const headers = authorizedHeader();
-      const result = await axios
-        .post(
+      await standardAccessToAPI(
+        axios.post(
           server_url + "/recipes",
           {
             recipe_name: name,
             original_url: url,
           },
           { headers }
-        )
-        .then((response) => response)
-        .catch((err) => err.response);
-      if (result.status === 200) {
-        // 成功したならデータベース情報を取得して更新する.
-        this.getRecipeList();
-      } else {
-        if ("message" in result.data) {
-          pushToLoginPage(result.data.message);
-        } else {
-          console.log(result);
+        ),
+        () => {
+          this.getRecipeList();
         }
-      }
+      );
       this.newRecipeName = "";
       this.originalUrl = "";
     },

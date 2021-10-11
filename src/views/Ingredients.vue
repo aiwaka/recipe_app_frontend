@@ -29,7 +29,12 @@
 
 <script>
 import axios from "axios";
-import { server_url, authorizedHeader, pushToLoginPage } from "../mixins/utils";
+import {
+  server_url,
+  authorizedHeader,
+  // pushToLoginPage,
+  standardAccessToAPI,
+} from "../mixins/utils";
 export default {
   name: "Ingredients",
   data() {
@@ -46,19 +51,12 @@ export default {
   methods: {
     async getIngrList() {
       const headers = authorizedHeader();
-      const result = await axios
-        .get(server_url + "/ingredients", { headers })
-        .then((response) => response)
-        .catch((err) => err.response);
-      if (result.status === 200) {
-        this.ingrDataList = result.data.dataList;
-      } else {
-        if ("message" in result.data) {
-          pushToLoginPage(result.data.message);
-        } else {
-          console.log(result);
+      await standardAccessToAPI(
+        axios.get(server_url + "/ingredients", { headers }),
+        (result) => {
+          this.ingrDataList = result.data.dataList;
         }
-      }
+      );
     },
     async addNewIngr() {
       const name = this.newIngrName;
@@ -72,27 +70,37 @@ export default {
       }
       console.log("add ingr");
       const headers = authorizedHeader();
-      const result = await axios
-        .post(
+      await standardAccessToAPI(
+        axios.post(
           server_url + "/ingredients",
-          {
-            ingr_name: name,
-            price,
-          },
+          { ingr_name: name, price },
           { headers }
-        )
-        .then((response) => response)
-        .catch((err) => err.response);
-      if (result.status === 200) {
-        // 成功したならデータベース情報を取得して更新する.
-        this.getIngrList();
-      } else {
-        if ("message" in result.data) {
-          pushToLoginPage(result.data.message);
-        } else {
-          console.log(result);
+        ),
+        () => {
+          this.getIngrList();
         }
-      }
+      );
+      //   const result = await axios
+      //     .post(
+      //       server_url + "/ingredients",
+      //       {
+      //         ingr_name: name,
+      //         price,
+      //       },
+      //       { headers }
+      //     )
+      //     .then((response) => response)
+      //     .catch((err) => err.response);
+      //   if (result.status === 200) {
+      //     // 成功したならデータベース情報を取得して更新する.
+      //     this.getIngrList();
+      //   } else {
+      //     if ("message" in result.data) {
+      //       pushToLoginPage(result.data.message);
+      //     } else {
+      //       console.log(result);
+      //     }
+      //   }
       this.newIngrName = "";
       this.newIngrPrice = -1;
     },

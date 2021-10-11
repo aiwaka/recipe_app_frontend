@@ -78,7 +78,11 @@
 
 <script>
 import axios from "axios";
-import { server_url, authorizedHeader, pushToLoginPage } from "../mixins/utils";
+import {
+  server_url,
+  authorizedHeader,
+  standardAccessToAPI,
+} from "../mixins/utils";
 import BlockWithChanger from "../components/TextBlock.vue";
 export default {
   name: "Contents",
@@ -118,21 +122,13 @@ export default {
       // todo: item一覧だけでなくレシピの情報も取得
       console.log("get recipe contents at " + String(recipeId));
       const headers = authorizedHeader();
-      const result = await axios
-        .get(server_url + `/recipes/${recipeId}`, { headers })
-        .then((response) => response)
-        .catch((err) => err.response);
-      if (result.status === 200) {
-        // 成功したらstateに保存
-        this.itemList = result.data.itemList;
-        this.recipeName = result.data.recipeName;
-      } else {
-        if ("message" in result.data) {
-          pushToLoginPage(result.data.message);
-        } else {
-          console.log(result);
+      await standardAccessToAPI(
+        axios.get(server_url + `/recipes/${recipeId}`, { headers }),
+        (result) => {
+          this.itemList = result.data.itemList;
+          this.recipeName = result.data.recipeName;
         }
-      }
+      );
     },
     async addNewItem() {
       const title = this.newItemTitle;
@@ -143,8 +139,8 @@ export default {
       const originalText = this.newItemText;
       console.log(`add item to recipe ${this.recipeId}`);
       const headers = authorizedHeader();
-      const result = await axios
-        .post(
+      await standardAccessToAPI(
+        axios.post(
           server_url + "/items",
           {
             item_order: this.itemList.length + 1, // todo: 現状定数にしているがちゃんと変化するようにする.
@@ -153,20 +149,11 @@ export default {
             original_text: originalText,
           },
           { headers }
-        )
-        .then((response) => response)
-        .catch((err) => err.response);
-      if (result.status === 200) {
-        // 成功したならデータベース情報を取得して更新する.
-        console.log(`success to add item to ${this.recipeId}`);
-        this.getRecipeContents(this.recipeId);
-      } else {
-        if ("message" in result.data) {
-          pushToLoginPage(result.data.message);
-        } else {
-          console.log(result);
+        ),
+        () => {
+          this.getRecipeContents(this.recipeId);
         }
-      }
+      );
       this.newItemTitle = "";
       this.newItemText = "";
     },
@@ -174,85 +161,47 @@ export default {
       // itemIdを変更可能テキストボックスにわたすためにこのような形にしている.
       // 返す関数はアロー関数を使わないとthisがバインドされずgetRecipeContentsが呼べない.
       return async (modMap) => {
-        console.log("update");
         // modMapはentryとnewDataを含むオブジェクトの配列.
         console.log("add item to recipe" + String(itemId));
         const headers = authorizedHeader();
-        const result = await axios
-          .put(server_url + "/items/" + String(itemId), modMap, { headers })
-          .then((response) => response)
-          .catch((err) => err.response);
-        if (result.status === 200) {
-          // 成功したならデータベース情報を取得して更新する.
-          console.log(
-            `success to update item ${itemId} of recipe ${this.recipeId}`
-          );
-          this.getRecipeContents(this.recipeId);
-        } else {
-          if ("message" in result.data) {
-            pushToLoginPage(result.data.message);
-          } else {
-            console.log(result);
+        await standardAccessToAPI(
+          axios.put(server_url + `/items/${itemId}`, modMap, { headers }),
+          () => {
+            this.getRecipeContents(this.recipeId);
           }
-        }
+        );
       };
     },
     deleteItem(itemId) {
       return async () => {
         const headers = authorizedHeader();
-        const result = await axios
-          .delete(server_url + "/items/" + String(itemId), { headers })
-          .then((response) => response)
-          .catch((err) => err.response);
-        if (result.status === 200) {
-          // 成功したならデータベース情報を取得して更新する.
-          console.log(
-            `success to delete item ${itemId} of recipe ${this.recipeId}`
-          );
-          this.getRecipeContents(this.recipeId);
-        } else {
-          if ("message" in result.data) {
-            pushToLoginPage(result.data.message);
-          } else {
-            console.log(result);
+        await standardAccessToAPI(
+          axios.delete(server_url + `/items/${itemId}`, { headers }),
+          () => {
+            this.getRecipeContents(this.recipeId);
           }
-        }
+        );
       };
     },
     async getIngrList() {
       // Ingredients.vueのをコピペした. 材料一覧を取得.
       const headers = authorizedHeader();
-      const result = await axios
-        .get(server_url + "/ingredients", { headers })
-        .then((response) => response)
-        .catch((err) => err.response);
-      if (result.status === 200) {
-        this.allIngrList = result.data.dataList;
-      } else {
-        if ("message" in result.data) {
-          pushToLoginPage(result.data.message);
-        } else {
-          console.log(result);
+      await standardAccessToAPI(
+        axios.get(server_url + "/ingredients", { headers }),
+        (result) => {
+          this.allIngrList = result.data.dataList;
         }
-      }
+      );
     },
     async getIngrListOfRecipe(recipeId) {
       // todo: レシピの材料一覧を取得する. ついでに総価格とかも算出できたら
       const headers = authorizedHeader();
-      const result = await axios
-        .get(server_url + `/recipes/${recipeId}/ingredients`, { headers })
-        .then((response) => response)
-        .catch((err) => err.response);
-      if (result.status === 200) {
-        // 成功したらstateに保存
-        this.recIngrDataList = result.data.ingrList;
-      } else {
-        if ("message" in result.data) {
-          pushToLoginPage(result.data.message);
-        } else {
-          console.log(result);
+      await standardAccessToAPI(
+        axios.get(server_url + `/recipes/${recipeId}/ingredients`, { headers }),
+        (result) => {
+          this.recIngrDataList = result.data.ingrList;
         }
-      }
+      );
     },
     editIngrList() {
       this.recIngrDataListEdit = JSON.parse(
@@ -278,63 +227,43 @@ export default {
     async addIngrToRecipe(addList) {
       // レシピに材料を追加. データはaddListをそのまま使う.
       const headers = authorizedHeader();
-      const result = await axios
-        .post(server_url + `/recipes/${this.recipeId}/ingredients`, addList, {
-          headers,
-        })
-        .then((response) => response)
-        .catch((err) => err.response);
-      if (result.status === 200) {
-        // 成功したならデータベース情報を取得して更新する.
-        this.getIngrListOfRecipe(this.recipeId);
-      } else {
-        if ("message" in result.data) {
-          pushToLoginPage(result.data.message);
-        } else {
-          console.log(result);
+      await standardAccessToAPI(
+        axios.post(
+          server_url + `/recipes/${this.recipeId}/ingredients`,
+          addList,
+          { headers }
+        ),
+        () => {
+          this.getIngrListOfRecipe(this.recipeId);
         }
-      }
+      );
     },
     async removeIngrFromRecipe(deleteList) {
       // レシピから材料を削除. データはdeleteListをそのまま使う.
       const headers = authorizedHeader();
-      const result = await axios
-        .delete(server_url + `/recipes/${this.recipeId}/ingredients`, {
+      await standardAccessToAPI(
+        axios.delete(server_url + `/recipes/${this.recipeId}/ingredients`, {
           headers,
           data: deleteList,
-        })
-        .then((response) => response)
-        .catch((err) => err.response);
-      if (result.status === 200) {
-        // 成功したならデータベース情報を取得して更新する.
-        this.getIngrListOfRecipe(this.recipeId);
-      } else {
-        if ("message" in result.data) {
-          pushToLoginPage(result.data.message);
-        } else {
-          console.log(result);
+        }),
+        () => {
+          this.getIngrListOfRecipe(this.recipeId);
         }
-      }
+      );
     },
     async changeAmount(changeList) {
       // レシピの材料の情報を変更. データはchangeListをそのまま使う.
       const headers = authorizedHeader();
-      const result = await axios
-        .put(server_url + `/recipes/${this.recipeId}/ingredients`, changeList, {
-          headers,
-        })
-        .then((response) => response)
-        .catch((err) => err.response);
-      if (result.status === 200) {
-        // 成功したならデータベース情報を取得して更新する.
-        this.getIngrListOfRecipe(this.recipeId);
-      } else {
-        if ("message" in result.data) {
-          pushToLoginPage(result.data.message);
-        } else {
-          console.log(result);
+      await standardAccessToAPI(
+        axios.put(
+          server_url + `/recipes/${this.recipeId}/ingredients`,
+          changeList,
+          { headers }
+        ),
+        () => {
+          this.getIngrListOfRecipe(this.recipeId);
         }
-      }
+      );
     },
     saveIngrEdit() {
       // add, remove, changeを一括して行い変更を保存する.
