@@ -18,6 +18,8 @@
         v-on:click="pushToContentsPage(rec.id)"
       >
         <p>{{ rec.name }}</p>
+        <button v-on:click="editRecipe(rec.id)">編集</button>
+        <button v-on:click="deleteRecipe(rec.id)">削除</button>
       </div>
     </div>
     <div v-else class="recipe__box-container">No data.</div>
@@ -100,6 +102,12 @@ export default {
     },
     pushToContentsPage(recipeId) {
       this.$router.push({ name: "Contents", params: { recipeId: recipeId } });
+    },
+    editRecipe(recId) {
+      console.log(recId);
+    },
+    deleteRecipe(recId) {
+      console.log(recId);
     },
   },
 };

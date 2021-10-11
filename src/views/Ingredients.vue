@@ -19,6 +19,8 @@
       <div v-for="ingr in ingrDataList" :key="ingr.id" class="ingr__each-box">
         <p>{{ ingr.name }}</p>
         <p v-if="ingr.price">{{ ingr.price }}円</p>
+        <button v-on:click="editIngr(ingr.id)">編集</button>
+        <button v-on:click="deleteIngr(ingr.id)">削除</button>
       </div>
     </div>
     <div v-else class="ingr__box-container">No data.</div>
@@ -96,6 +98,12 @@ export default {
     },
     searchRecipe() {
       //todo
+    },
+    editIngr(ingrId) {
+      console.log(ingrId);
+    },
+    deleteIngr(ingrId) {
+      console.log(ingrId);
     },
   },
 };
