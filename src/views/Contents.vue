@@ -62,7 +62,7 @@
     </div>
     <!-- ここからitemリスト -->
     <template v-if="itemList.length">
-      <block-with-changer
+      <item-block
         v-for="item in itemList"
         :key="item.id"
         class="contents__item-box"
@@ -83,10 +83,10 @@ import {
   authorizedHeader,
   standardAccessToAPI,
 } from "../mixins/utils";
-import BlockWithChanger from "../components/TextBlock.vue";
+import ItemBlock from "../components/ItemBlock.vue";
 export default {
   name: "Contents",
-  components: { BlockWithChanger },
+  components: { ItemBlock },
   beforeRouteUpdate(to, from, next) {
     console.log("update to " + String(to.params.recipeId));
     this.getRecipeContents(to.params.recipeId);

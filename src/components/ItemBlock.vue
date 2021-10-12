@@ -1,6 +1,6 @@
 <template>
   <!--textを受け取り表示する. changeボタンを押すと編集でき, saveを押すと受け取った関数を実行する. オプションでinputTypeを指定するとテキストのバリデーションを設定できる.-->
-  <div class="block-with-changer">
+  <div class="item-block">
     <template v-if="show">
       <h3 class="title-header">{{ title }}</h3>
       <div class="text-space" v-if="!foldFlag" v-on:click="textClick">
@@ -34,7 +34,7 @@
 
 <script>
 export default {
-  name: "BlockWithChanger",
+  name: "ItemBlock",
   data: () => {
     return {
       show: true, // trueのときは変更不可. falseのときはテキストボックス
@@ -153,7 +153,7 @@ export default {
 .label {
   font-weight: bold;
 }
-.block-with-changer {
+.item-block {
   display: flex;
   flex-direction: column;
   justify-content: space-between;
