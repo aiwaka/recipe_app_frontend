@@ -11,16 +11,14 @@
       <button v-on:click.prevent="searchRecipe">検索</button>
     </div>
     <div v-if="recipeDataList.length" class="recipe__box-container">
-      <div
+      <recipe-block
         v-for="rec in recipeDataList"
         :key="rec.id"
         class="recipe__each-box"
-        v-on:click="pushToContentsPage(rec.id)"
-      >
-        <p>{{ rec.name }}</p>
-        <button v-on:click="editRecipe(rec.id)">編集</button>
-        <button v-on:click="deleteRecipe(rec.id)">削除</button>
-      </div>
+        :recipeName="rec.name"
+        :recipeId="rec.id"
+        v-on:update-recipe-list="getRecipeList"
+      />
     </div>
     <div v-else class="recipe__box-container">No data.</div>
   </div>
@@ -34,9 +32,10 @@ import {
   // pushToLoginPage,
   standardAccessToAPI,
 } from "../mixins/utils";
+import RecipeBlock from "../components/RecipeBlock.vue";
 export default {
   name: "Recipes",
-  components: {},
+  components: { RecipeBlock },
   data() {
     return {
       newRecipeName: "",
@@ -56,6 +55,9 @@ export default {
         axios.get(server_url + "/recipes", { headers }),
         (result) => {
           this.recipeDataList = result.data.dataList;
+          for (const recipe of this.recipeDataList) {
+            recipe.editNewRecipeName = "";
+          }
         }
       );
     },
@@ -63,6 +65,9 @@ export default {
       const name = this.newRecipeName;
       if (name === "") {
         alert("名前は必須です。");
+        return;
+      } else if (name.length > 150) {
+        alert("名前が長すぎます。150文字以内にする必要があります。");
         return;
       }
       const url = this.originalUrl;
@@ -86,15 +91,6 @@ export default {
     },
     searchRecipe() {
       //todo
-    },
-    pushToContentsPage(recipeId) {
-      this.$router.push({ name: "Contents", params: { recipeId: recipeId } });
-    },
-    editRecipe(recId) {
-      console.log(recId);
-    },
-    deleteRecipe(recId) {
-      console.log(recId);
     },
   },
 };

@@ -108,11 +108,9 @@ export default {
       if (this.oldText !== this.newText) {
         modMap.push({ entry: "modified_text", new_data: this.newText });
       }
-      if (!modMap.length) {
-        this.show = true;
-        return;
+      if (modMap.length) {
+        this.updateFunc(modMap);
       }
-      this.updateFunc(modMap);
       this.show = true;
     },
     deleteItem() {

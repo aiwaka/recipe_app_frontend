@@ -16,12 +16,15 @@
       <button v-on:click.prevent="searchIngr">検索</button>
     </div>
     <div v-if="ingrDataList.length" class="ingr__box-container">
-      <div v-for="ingr in ingrDataList" :key="ingr.id" class="ingr__each-box">
-        <p>{{ ingr.name }}</p>
-        <p v-if="ingr.price">{{ ingr.price }}円</p>
-        <button v-on:click="editIngr(ingr.id)">編集</button>
-        <button v-on:click="deleteIngr(ingr.id)">削除</button>
-      </div>
+      <ingredient-block
+        v-for="ingr in ingrDataList"
+        :key="ingr.id"
+        :ingrId="ingr.id"
+        :ingrName="ingr.name"
+        :ingrPrice="ingr.price"
+        v-on:update-ingr-list="getIngrList"
+        class="ingr__each-box"
+      />
     </div>
     <div v-else class="ingr__box-container">No data.</div>
   </div>
@@ -35,7 +38,9 @@ import {
   // pushToLoginPage,
   standardAccessToAPI,
 } from "../mixins/utils";
+import IngredientBlock from "../components/IngredientBlock.vue";
 export default {
+  components: { IngredientBlock },
   name: "Ingredients",
   data() {
     return {
@@ -62,6 +67,9 @@ export default {
       const name = this.newIngrName;
       if (name === "") {
         alert("名前は必須です。");
+        return;
+      } else if (name.length > 25) {
+        alert("材料名は25文字以内にする必要があります。");
         return;
       }
       let price = this.newIngrPrice;
