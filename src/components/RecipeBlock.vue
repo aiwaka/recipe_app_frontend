@@ -1,15 +1,15 @@
 <template>
   <div class="recipe-block">
-    <div v-if="!editting">
+    <template v-if="!editting">
       <p v-on:click.prevent="pushToContentsPage">{{ recipeName }}</p>
       <button v-on:click="changeData">編集</button>
       <button v-on:click="deleteBlock">削除</button>
-    </div>
-    <div v-else>
+    </template>
+    <template v-else>
       <input placeholder="new name" v-model="newName" />
       <button v-on:click="saveData">保存</button>
       <button v-on:click="cancelEdit">キャンセル</button>
-    </div>
+    </template>
   </div>
 </template>
 
@@ -93,3 +93,25 @@ export default {
   },
 };
 </script>
+
+<style>
+.recipe-block {
+  background-color: rgba(255, 255, 255, 0);
+  border: 1px solid #aaa;
+  font-size: 2rem;
+  min-height: 6rem;
+  padding: 0.2rem 0.8rem;
+  margin: auto auto;
+}
+.recipe-block:hover {
+  background-color: #ccc;
+  cursor: pointer;
+}
+.recipe-block p {
+  margin: 0;
+}
+.recipe-block > input {
+  margin: 1rem auto;
+  display: block;
+}
+</style>

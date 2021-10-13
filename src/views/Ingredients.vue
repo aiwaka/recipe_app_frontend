@@ -127,15 +127,9 @@ export default {
 
 <style>
 .ingr__box-container {
-  width: 20rem;
-  margin: auto auto;
-}
-.ingr__each-box {
   display: flex;
-  background-color: rgba(255, 255, 255, 0);
-  border: 1px solid #aaa;
-  /* height: 4rem; */
-  padding: 0.2rem 0.8rem;
-  margin: auto auto;
+  flex-wrap: wrap;
+  width: 30rem;
+  margin: 1.8rem auto;
 }
 </style>

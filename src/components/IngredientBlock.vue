@@ -1,17 +1,25 @@
 <template>
   <div class="ingr-block">
-    <div v-if="!editting">
-      <p>{{ ingrName }}</p>
-      <p v-if="showPrice">{{ ingrPrice }}円</p>
-      <button v-on:click="changeData">編集</button>
-      <button v-on:click="deleteBlock">削除</button>
-    </div>
-    <div v-else>
-      <input placeholder="new name" v-model="newName" />
-      <input type="number" min="-1" v-model="newPrice" />
-      <button v-on:click="saveData">保存</button>
-      <button v-on:click="cancelEdit">キャンセル</button>
-    </div>
+    <template v-if="!editting">
+      <div class="ingr__info-container">
+        <p>{{ ingrName }}</p>
+        <p v-if="showPrice">{{ ingrPrice }}円</p>
+      </div>
+      <div class="ingr__button-container">
+        <button v-on:click="changeData">-</button>
+        <button v-on:click="deleteBlock">x</button>
+      </div>
+    </template>
+    <template v-else>
+      <div class="ingr__info-container">
+        <input placeholder="new name" v-model="newName" />
+        <input type="number" min="-1" v-model="newPrice" />
+      </div>
+      <div class="ingr__button-container">
+        <button v-on:click="saveData">保存</button>
+        <button v-on:click="cancelEdit">キャンセル</button>
+      </div>
+    </template>
   </div>
 </template>
 
@@ -107,3 +115,43 @@ export default {
   },
 };
 </script>
+
+<style>
+.ingr-block {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: rgba(255, 255, 255, 0);
+  border: 1px solid #aaa;
+  min-height: 3rem;
+  padding: 0.2rem 0.8rem;
+  margin: auto auto;
+}
+.ingr__info-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: center;
+}
+.ingr__info-container > input {
+  display: block;
+  width: 3rem;
+}
+.ingr__button-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  margin: auto 0.2rem;
+}
+.ingr__button-container > button {
+  border-radius: 3rem;
+}
+.ingr__button-container > button:hover {
+  background-color: #666;
+  color: aliceblue;
+}
+.ingr__info-container > p {
+  max-width: 5rem;
+  margin: 0;
+}
+</style>

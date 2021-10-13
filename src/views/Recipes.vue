@@ -99,21 +99,6 @@ export default {
 <style>
 .recipe__box-container {
   width: 20rem;
-  margin: auto auto;
-}
-.recipe__each-box {
-  background-color: rgba(255, 255, 255, 0);
-  border: 1px solid #aaa;
-  font-size: 2.6rem;
-  /* height: 4rem; */
-  padding: 0.2rem 0.8rem;
-  margin: auto auto;
-}
-.recipe__each-box:hover {
-  background-color: #ccc;
-  cursor: pointer;
-}
-.recipe__each-box > p {
-  margin: 0;
+  margin: 1.8rem auto;
 }
 </style>
