@@ -1,5 +1,5 @@
 <template>
-  <!--textを受け取り表示する. changeボタンを押すと編集でき, saveを押すと受け取った関数を実行する. オプションでinputTypeを指定するとテキストのバリデーションを設定できる.-->
+  <!--textを受け取り表示する. changeボタンを押すと編集でき, saveを押すと受け取った関数を実行する.-->
   <div class="item-block">
     <template v-if="show">
       <h3 class="title-header">{{ title }}</h3>
@@ -25,7 +25,7 @@
       </h3>
       <textarea class="text-input" v-model="newText" />
       <div class="button-container">
-        <button v-on:click.prevent="save">保存</button>
+        <button v-on:click.prevent="saveChange">保存</button>
         <button v-on:click.prevent="cancel">キャンセル</button>
       </div>
     </template>
@@ -33,6 +33,12 @@
 </template>
 
 <script>
+import axios from "axios";
+import {
+  server_url,
+  authorizedHeader,
+  standardAccessToAPI,
+} from "../mixins/utils";
 export default {
   name: "ItemBlock",
   data: () => {
@@ -46,24 +52,16 @@ export default {
     };
   },
   props: {
+    itemId: {
+      type: Number,
+      required: true,
+    },
     title: {
       type: String,
       default: "",
     },
     text: {
       default: "",
-    },
-    inputType: {
-      type: String,
-      default: "text",
-    },
-    updateFunc: {
-      type: Function,
-      required: true,
-    },
-    deleteFunc: {
-      type: Function,
-      required: true,
     },
   },
   computed: {
@@ -90,7 +88,7 @@ export default {
     cancel() {
       this.show = true;
     },
-    save() {
+    async saveChange() {
       if (this.newText.length > 300) {
         alert("本文の文字数が多すぎます。300文字以内に収める必要があります。");
         return;
@@ -101,6 +99,7 @@ export default {
         );
         return;
       }
+      // modMapはentryとnewDataを含むオブジェクトの配列.
       const modMap = [];
       if (this.oldTitle !== this.newTitle) {
         modMap.push({ entry: "title", new_data: this.newTitle });
@@ -109,16 +108,29 @@ export default {
         modMap.push({ entry: "modified_text", new_data: this.newText });
       }
       if (modMap.length) {
-        this.updateFunc(modMap);
+        console.log("add item to recipe" + String(this.itemId));
+        const headers = authorizedHeader();
+        await standardAccessToAPI(
+          axios.put(server_url + `/items/${this.itemId}`, modMap, { headers }),
+          () => {
+            this.$emit("update-item-list");
+          }
+        );
       }
       this.show = true;
     },
-    deleteItem() {
+    async deleteItem() {
       if (confirm(`'${this.title}'を消去しますか？`)) {
-        this.deleteFunc();
+        const headers = authorizedHeader();
+        await standardAccessToAPI(
+          axios.delete(server_url + `/items/${this.itemId}`, { headers }),
+          () => {
+            this.$emit("update-item-list");
+          }
+        );
       }
     },
-    setDefaultText() {
+    async setDefaultText() {
       const text = this.text;
       if (
         confirm(
@@ -129,7 +141,13 @@ export default {
           { entry: "original_text", new_data: text },
           { entry: "modified_text", new_data: text },
         ];
-        this.updateFunc(modMap);
+        const headers = authorizedHeader();
+        await standardAccessToAPI(
+          axios.put(server_url + `/items/${this.itemId}`, modMap, { headers }),
+          () => {
+            this.$emit("update-item-list");
+          }
+        );
         this.show = true;
       }
     },
@@ -152,11 +170,14 @@ export default {
   font-weight: bold;
 }
 .item-block {
+  border: 1px solid #aaa;
+  width: 30rem;
+  padding: 0.2rem 0.8rem;
+  margin: auto auto;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
   align-items: center;
-  /* height: 11rem; */
   height: fit-content;
 }
 .button-container {

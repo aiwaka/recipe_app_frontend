@@ -69,10 +69,10 @@
         v-for="item in itemList"
         :key="item.id"
         class="contents__item-box"
+        :itemId="item.id"
         :title="item.title"
         :text="item.modified_text"
-        :updateFunc="updateItem(item.id)"
-        :deleteFunc="deleteItem(item.id)"
+        v-on:update-item-list="getRecipeContents(recipeId)"
       />
     </template>
     <template v-else><div>No Data</div></template>
@@ -161,32 +161,6 @@ export default {
       );
       this.newItemTitle = "";
       this.newItemText = "";
-    },
-    updateItem(itemId) {
-      // itemIdを変更可能テキストボックスにわたすためにこのような形にしている.
-      // 返す関数はアロー関数を使わないとthisがバインドされずgetRecipeContentsが呼べない.
-      return async (modMap) => {
-        // modMapはentryとnewDataを含むオブジェクトの配列.
-        console.log("add item to recipe" + String(itemId));
-        const headers = authorizedHeader();
-        await standardAccessToAPI(
-          axios.put(server_url + `/items/${itemId}`, modMap, { headers }),
-          () => {
-            this.getRecipeContents(this.recipeId);
-          }
-        );
-      };
-    },
-    deleteItem(itemId) {
-      return async () => {
-        const headers = authorizedHeader();
-        await standardAccessToAPI(
-          axios.delete(server_url + `/items/${itemId}`, { headers }),
-          () => {
-            this.getRecipeContents(this.recipeId);
-          }
-        );
-      };
     },
     async getIngrList() {
       // Ingredients.vueのをコピペした. 材料一覧を取得.
@@ -315,13 +289,6 @@ export default {
 </script>
 
 <style>
-.contents__item-box {
-  background-color: rgba(255, 255, 255, 0);
-  border: 1px solid #aaa;
-  width: 30rem;
-  padding: 0.2rem 0.8rem;
-  margin: auto auto;
-}
 .recipe__ingr-container {
   border: 1px solid #aaa;
   width: 40rem;
