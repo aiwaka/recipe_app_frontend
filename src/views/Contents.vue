@@ -1,6 +1,9 @@
 <template>
   <div id="contents">
     <h2>{{ recipeName }}</h2>
+    <p class="original-url" v-if="originalUrl">
+      {{ originalUrl }}から取得しました。
+    </p>
     <div class="contents__add-box">
       <input placeholder="contents title" v-model="newItemTitle" />
       <textarea placeholder="text" v-model="newItemText" />
@@ -101,6 +104,7 @@ export default {
   data() {
     return {
       recipeName: "",
+      originalUrl: "",
       newItemTitle: "",
       newItemText: "",
       updateTitle: "",
@@ -127,6 +131,7 @@ export default {
         (result) => {
           this.itemList = result.data.itemList;
           this.recipeName = result.data.recipeName;
+          this.originalUrl = result.data.originalUrl;
         }
       );
     },
