@@ -111,7 +111,9 @@ export default {
         console.log("add item to recipe" + String(this.itemId));
         const headers = authorizedHeader();
         await standardAccessToAPI(
-          axios.put(server_url + `/items/${this.itemId}`, modMap, { headers }),
+          axios.patch(server_url + `/items/${this.itemId}`, modMap, {
+            headers,
+          }),
           () => {
             this.$emit("update-item-list");
           }
@@ -132,18 +134,16 @@ export default {
     },
     async setDefaultText() {
       const text = this.text;
-      if (
-        confirm(
-          "現在のテキストをデフォルトとして設定しますか？（もとに戻せません）"
-        )
-      ) {
+      if (confirm("現在のテキストをデフォルトとして設定しますか？")) {
         const modMap = [
           { entry: "original_text", new_data: text },
           { entry: "modified_text", new_data: text },
         ];
         const headers = authorizedHeader();
         await standardAccessToAPI(
-          axios.put(server_url + `/items/${this.itemId}`, modMap, { headers }),
+          axios.patch(server_url + `/items/${this.itemId}`, modMap, {
+            headers,
+          }),
           () => {
             this.$emit("update-item-list");
           }

@@ -1,4 +1,5 @@
 <template>
+  <!-- 材料一覧ページでの各材料のブロック -->
   <div class="ingr-block">
     <template v-if="!editting">
       <div class="ingr__info-container">
@@ -99,7 +100,7 @@ export default {
       if (modMap.length) {
         const headers = authorizedHeader();
         await standardAccessToAPI(
-          axios.put(server_url + `/ingredients/${this.ingrId}`, modMap, {
+          axios.patch(server_url + `/ingredients/${this.ingrId}`, modMap, {
             headers,
           }),
           () => {

@@ -88,27 +88,6 @@ export default {
           this.getIngrList();
         }
       );
-      //   const result = await axios
-      //     .post(
-      //       server_url + "/ingredients",
-      //       {
-      //         ingr_name: name,
-      //         price,
-      //       },
-      //       { headers }
-      //     )
-      //     .then((response) => response)
-      //     .catch((err) => err.response);
-      //   if (result.status === 200) {
-      //     // 成功したならデータベース情報を取得して更新する.
-      //     this.getIngrList();
-      //   } else {
-      //     if ("message" in result.data) {
-      //       pushToLoginPage(result.data.message);
-      //     } else {
-      //       console.log(result);
-      //     }
-      //   }
       this.newIngrName = "";
       this.newIngrPrice = -1;
     },

@@ -1,4 +1,5 @@
 <template>
+  <!-- レシピ一覧で表示される各レシピのブロック -->
   <div class="recipe-block">
     <template v-if="!editting">
       <p v-on:click.prevent="pushToContentsPage">{{ recipeName }}</p>
@@ -77,7 +78,7 @@ export default {
       if (modMap.length) {
         const headers = authorizedHeader();
         await standardAccessToAPI(
-          axios.put(server_url + `/recipes/${this.recipeId}`, modMap, {
+          axios.patch(server_url + `/recipes/${this.recipeId}`, modMap, {
             headers,
           }),
           () => {

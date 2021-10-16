@@ -84,7 +84,7 @@ export default {
       if (confirm("ログアウトします")) {
         const headers = authorizedHeader();
         const result = await axios
-          .post(server_url + "/logout", {}, { headers })
+          .delete(server_url + "/login", { headers })
           .then((response) => response)
           .catch((err) => err.response);
         if (result.status === 200) {
@@ -97,11 +97,6 @@ export default {
         this.$router.go({ path: "/", force: true });
       }
     },
-    // logout() {
-    //   if (confirm("ログアウトします")) {
-    //     this.$store.dispatch("logout");
-    //   }
-    // },
   },
 };
 </script>
@@ -110,5 +105,7 @@ export default {
 .error-message {
   border: 1px solid red;
   color: red;
+  width: 30rem;
+  margin: 0.4rem auto;
 }
 </style>

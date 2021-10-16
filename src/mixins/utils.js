@@ -20,7 +20,7 @@ export const checkLogin = async function () {
   console.log("checking login status");
   const headers = authorizedHeader();
   const result = await axios
-    .post(server_url + "/check_login", {}, { headers })
+    .get(server_url + "/login", { headers })
     .then((response) => response)
     .catch((err) => err.response);
   if (result.status === 200) {
