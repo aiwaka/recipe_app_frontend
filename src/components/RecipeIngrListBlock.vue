@@ -1,5 +1,12 @@
 <template>
-  <div class="ingr-editor__list-container">
+  <!-- レシピコンテンツの材料リストのブロック -->
+  <div
+    class="ingr-editor__list-container"
+    :class="{ dragover: isDragOver && editting === 2 }"
+    v-on:dragover.prevent="onDrag('over')"
+    v-on:dragleave="onDrag('leave')"
+    v-on:drop.stop="dropItem($event)"
+  >
     <div>材料リスト</div>
     <template v-if="editting !== 1">
       <!-- 編集中でないとき -->
@@ -67,7 +74,6 @@ export default {
   components: { RecipeIngrItem },
   created() {
     this.getIngrListOfRecipe();
-    this.getIngrList();
   },
   watch: {
     editting: function (newVal) {
@@ -79,24 +85,28 @@ export default {
   props: {
     editting: { type: Number },
     recipeId: { type: Number },
+    allIngrList: { type: Array },
   },
   data() {
     return {
-      allIngrList: [],
+      isDragOver: false, // グループ編集時の素材をここにドロップするときのためにある変数
       ingrList: [],
       ingrListEdit: [],
     };
   },
   methods: {
-    async getIngrList() {
-      // Ingredients.vueのをコピペした. 材料一覧を取得.
-      const headers = authorizedHeader();
-      await standardAccessToAPI(
-        axios.get(server_url + "/ingredients", { headers }),
-        (result) => {
-          this.allIngrList = result.data.dataList;
-        }
-      );
+    onDrag(eventType) {
+      // "over"が渡されたときはtrue, それ以外のときはfalseになるようにする.
+      this.isDragOver = eventType === "over";
+    },
+    dropItem(event) {
+      // グループ編集時に材料を材料リストで離すとグループから削除できる機能
+      this.isDragOver = false;
+      const data = JSON.parse(event.dataTransfer.getData("text/plain"));
+      const { ingrId, fromGroupId } = data;
+      if (fromGroupId !== -1) {
+        this.$emit("edit-move-ingr", { fromGroupId, toGroupId: -1, ingrId });
+      }
     },
     async getIngrListOfRecipe() {
       // todo: レシピの材料一覧を取得する. ついでに総価格とかも算出できたら
@@ -212,6 +222,9 @@ export default {
 .ingr-editor__list-container {
   border: 2px solid #ddd;
   margin: 0.2rem auto;
+}
+.ingr-editor__list-container.dragover {
+  box-shadow: inset 0 3px 5px rgba(0, 0, 0, 0.33);
 }
 .ingr-editor__lists {
   display: flex;

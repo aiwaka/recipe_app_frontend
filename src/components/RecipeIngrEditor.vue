@@ -4,29 +4,16 @@
     <recipe-ingr-list-block
       :editting="editting"
       :recipeId="recipeId"
+      :allIngrList="allIngrList"
+      v-on:edit-move-ingr="dropIngrToIngrList"
       ref="ingrListBlock"
     />
     <recipe-ingr-group-block
       :recipeId="recipeId"
       :editting="editting"
+      :allIngrList="allIngrList"
       ref="ingrGroupBlock"
     />
-    <!-- <div class="ingr-editor__group-container" :disabled="editting === 1">
-      <div>グループリスト</div>
-      <div v-if="groupList.length" class="ingr-editor__groups">
-        <recipe-ingr-group-block
-          v-for="group in groupList"
-          :key="group.id"
-          :editting="editting"
-          :recipeId="recipeId"
-          :groupId="group.id"
-          :groupName="group.group_name"
-          v-on:update-group="getGroupList"
-          v-on:delete-group="deleteGroup(group.id)"
-          class="group"
-        />
-      </div>
-    </div> -->
     <div class="ingr-editor__button-container">
       <template v-if="editting === 0">
         <button v-on:click="editIngrList">材料リスト編集</button>
@@ -45,25 +32,25 @@
 </template>
 
 <script>
-// import axios from "axios";
-// import {
-//   server_url,
-//   authorizedHeader,
-//   standardAccessToAPI,
-// } from "../mixins/utils";
+import axios from "axios";
+import {
+  server_url,
+  authorizedHeader,
+  standardAccessToAPI,
+} from "../mixins/utils";
 import RecipeIngrGroupBlock from "./RecipeIngrGroupBlock.vue";
 import RecipeIngrListBlock from "./RecipeIngrListBlock.vue";
 export default {
   name: "RecipeIngrEditor",
   components: { RecipeIngrGroupBlock, RecipeIngrListBlock },
   created() {
+    this.getIngrList();
     // this.getGroupList();
   },
   data() {
     return {
       editting: 0, // 0：編集していない, 1：リスト編集, 2：グループ編集
-      // groupList: [],
-      // groupListEdit: [], // 編集中のグループリスト
+      allIngrList: [], // 全材料のリストはグループ管理でも使うし変更しないので一番上で保持しておく
     };
   },
   props: {
@@ -73,24 +60,20 @@ export default {
     },
   },
   methods: {
-    // async getGroupList() {
-    //   const headers = authorizedHeader();
-    //   await standardAccessToAPI(
-    //     axios.get(server_url + `/recipes/${this.recipeId}/groups`, { headers }),
-    //     (result) => {
-    //       this.groupList = result.data.groupList;
-    //     }
-    //   );
-    // },
-    // async deleteGroup(groupId) {
-    //   const headers = authorizedHeader();
-    //   await standardAccessToAPI(
-    //     axios.delete(server_url + `/groups/${groupId}`, { headers }),
-    //     () => {
-    //       this.getGroupList();
-    //     }
-    //   );
-    // },
+    async getIngrList() {
+      // Ingredients.vueのをコピペした. 材料一覧を取得.
+      const headers = authorizedHeader();
+      await standardAccessToAPI(
+        axios.get(server_url + "/ingredients", { headers }),
+        (result) => {
+          this.allIngrList = result.data.dataList;
+        }
+      );
+    },
+    dropIngrToIngrList(payload) {
+      // 材料リストに材料をdropしたときに呼び出される.
+      this.$refs.ingrGroupBlock.moveIngrBetweenGroups(payload);
+    },
     editIngrList() {
       // this.ingrListEdit = JSON.parse(JSON.stringify(this.ingrList));
       this.editting = 1;
@@ -104,15 +87,18 @@ export default {
       this.editting = 0;
     },
     discardIngrEdit() {
-      this.editting = 0;
-      // this.ingrListEdit = [];
+      if (confirm("破棄すると変更は保存されません。よろしいですか？")) {
+        this.editting = 0;
+      }
     },
     saveGroupEdit() {
       this.$refs.ingrGroupBlock.saveGroupEdit();
       this.editting = 0;
     },
     discardGroupEdit() {
-      this.editting = 0;
+      if (confirm("破棄すると変更は保存されません。よろしいですか？")) {
+        this.editting = 0;
+      }
     },
   },
 };
