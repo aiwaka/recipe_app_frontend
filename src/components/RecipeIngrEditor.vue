@@ -75,15 +75,13 @@ export default {
       this.$refs.ingrGroupBlock.moveIngrBetweenGroups(payload);
     },
     editIngrList() {
-      // this.ingrListEdit = JSON.parse(JSON.stringify(this.ingrList));
       this.editting = 1;
     },
     editGroupList() {
-      // this.ingrGroupEdit = JSON.parse(JSON.stringify(this.groupList));
       this.editting = 2;
     },
-    saveIngrEdit() {
-      this.$refs.ingrListBlock.saveIngrEdit();
+    async saveIngrEdit() {
+      await this.$refs.ingrListBlock.saveIngrEdit();
       this.editting = 0;
     },
     discardIngrEdit() {
@@ -91,8 +89,8 @@ export default {
         this.editting = 0;
       }
     },
-    saveGroupEdit() {
-      this.$refs.ingrGroupBlock.saveGroupEdit();
+    async saveGroupEdit() {
+      await this.$refs.ingrGroupBlock.saveGroupEdit();
       this.editting = 0;
     },
     discardGroupEdit() {

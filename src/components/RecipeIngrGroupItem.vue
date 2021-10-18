@@ -21,7 +21,7 @@
         ref="menu"
         v-on:menu-closed="changingName = false"
       >
-        <pull-down-menu-list v-on:list-clicked="removeGroup">
+        <pull-down-menu-list v-on:list-clicked="deleteGroup">
           グループを削除
         </pull-down-menu-list>
         <pull-down-menu-list v-on:list-clicked="changeName">
@@ -90,24 +90,13 @@ export default {
       if (fromGroupId !== toGroupId) {
         this.$emit("edit-move-ingr", { fromGroupId, toGroupId, ingrId });
       }
-      // if (toGroupId === -1) {
-      //   if (fromGroupId !== -1) {
-      //     this.$emit("remove-ingr", { fromGroupId, ingrId });
-      //   }
-      // } else {
-      //   // this.$emit("add-ingr", { toGroupId, ingrId });
-      //   // 追加処理
-      //   this.$emit("edit-move-ingr", { fromGroupId, toGroupId, ingrId });
-      // }
     },
     closeMenu() {
       this.$refs.menu.close();
     },
-    removeGroup() {
+    deleteGroup() {
       this.closeMenu();
-      if (confirm(`'${this.groupName}'を削除してもよろしいですか？`)) {
-        this.$emit("edit-delete-group");
-      }
+      this.$emit("edit-delete-group");
     },
     changeName() {
       this.newGroupName = this.groupName;
@@ -120,18 +109,9 @@ export default {
           entry: "name",
           newData: this.newGroupName,
         });
-        // const modMap = [{ entry: "name", new_data: this.newGroupName }];
-        // const headers = authorizedHeader();
-        // await standardAccessToAPI(
-        //   axios.put(server_url + `/groups/${this.groupId}`, modMap, {
-        //     headers,
-        //   }),
-        //   () => {
-        //     this.$emit("update-group");
-        //   }
-        // );
       }
       this.changingName = false;
+      this.newGroupName = "";
       this.closeMenu();
     },
   },
