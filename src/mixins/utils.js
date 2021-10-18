@@ -42,7 +42,7 @@ export const pushToLoginPage = function (message) {
 
 export const standardAccessToAPI = async function (
   axiosPromise,
-  successMethod
+  successCallback
 ) {
   // axios.post(...)などのPromiseオブジェクトを受け取り,
   // 成功した場合はsuccessMethodを引数resultで実行,
@@ -51,7 +51,7 @@ export const standardAccessToAPI = async function (
     .then((response) => response)
     .catch((err) => err.response);
   if (result.status == 200) {
-    successMethod(result);
+    successCallback(result);
   } else {
     if ("message" in result.data) {
       pushToLoginPage(result.data.message);
